@@ -130,10 +130,13 @@ Run the test suite with:
 ```bash
 pytest -v
 ```
+
 ---
 ## Final Result
 
-[Watch the demo video (CodingWeek_Demo.mp4)](./CodingWeek_Demo.mp4)
+<video src="CodingWeek_Demo.mp4" controls width="100%">
+  Your browser does not support the video tag.
+</video>
 
 <p align="right">
   <a href="#top">⬆️ <b>Back to top</b></a>
@@ -271,7 +274,9 @@ pytest -v
 
 ## Rendu final
 
-[Regarder la vidéo de démonstration (CodingWeek_Demo.mp4)](./CodingWeek_Demo.mp4)
+<video src="CodingWeek_Demo.mp4" controls width="100%">
+  Votre navigateur ne supporte pas la lecture de vidéos.
+</video>
 
 <p align="right">
   <a href="#top">⬆️ <b>Retour en haut</b></a>
