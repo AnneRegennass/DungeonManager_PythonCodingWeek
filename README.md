@@ -134,9 +134,7 @@ pytest -v
 ---
 ## Final Result
 
-<video src="CodingWeek_Demo.mp4" controls width="100%">
-  Your browser does not support the video tag.
-</video>
+[Watch the demo video (CodingWeek_Demo.mp4)](./CodingWeek_Demo.mp4)
 
 <p align="right">
   <a href="#top">⬆️ <b>Back to top</b></a>
@@ -274,9 +272,7 @@ pytest -v
 
 ## Rendu final
 
-<video src="CodingWeek_Demo.mp4" controls width="100%">
-  Votre navigateur ne supporte pas la lecture de vidéos.
-</video>
+[Regarder la vidéo de démonstration (CodingWeek_Demo.mp4)](./CodingWeek_Demo.mp4)
 
 <p align="right">
   <a href="#top">⬆️ <b>Retour en haut</b></a>
