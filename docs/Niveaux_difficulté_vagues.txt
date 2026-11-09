@@ -1,0 +1,20 @@
+MAX 7 héros par vague
+
+Stats des héros : évolutive en fonction du niveau
+Niveau des héros = ceil(n°vague / 5)
+
+MODULO 5 :
+* 1-3 : + 1 héros ajoutés (Pour vague < 10)
+* 4 : Buff de héros (hp ou damage)
+    -> 60% de chance d'avoir un buff sur chaque héros
+* 5 : 1 des héros est un boss (niveau = n°vague + 2)
+    -> 70% de chance d'avoir un buff sur chaque héros
+
+Vague 1-5 : stratégie faible
+
+Vague 6 et + : Strat smart ajoutés
+    -> 75% de chance : smart
+
+Vague 8 et + : ajout stratégie fearless
+    -> 50% de chance d'ajout d'un héros avec niveau +1 fearless
+    -> sinon 25% de chance d'ajout de 2 héros fearless (donc 8 héros)

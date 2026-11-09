@@ -1,0 +1,170 @@
+@startuml Dungeon Master
+
+Interface IntEnum{
+}
+
+Class EntityType{
+    EMPTY = 0
+    WALL = 1
+    ENTRY = 2
+    TREASURE = 3
+    TRAP = 4
+    HERO = 5
+    MONSTRER = 6
+}
+
+IntEnum <|.. EntityType
+
+class Strategy{
+    BFS = 0
+    SMART = 1
+    FEARLESS = 2
+}
+
+IntEnum <|.. Strategy
+
+Class Effects{
+    FIRE = 1
+    CONFUSED = 2
+}
+
+IntEnum <|.. Effects
+
+Interface Trap{
+    int cost 
+    int damage 
+    int nbUse
+    int level
+    int upgradeCost
+    +used()
+}
+
+Class Spike{
+    cost 
+    damage
+    nbUse = inf
+    level
+    upgradeCost
+    +get_maxLevel()
+    +get_cost(int level)
+    +get_upgrade_cost()
+    +change_level(int new_level)
+}
+
+Class Fire{
+    cost = 20
+    damage = 5
+    nbUse = inf
+    level 
+    +get_cost(int level)
+    +applyEffect(Hero hero)
+    +give_delay_damage()
+}
+
+Class Rune{
+    cost = 20
+    damage = 0
+    nbUse = inf
+    level
+    +get_cost(int level)
+    +applyEffect(Hero hero)
+}
+
+Class Hole{
+    cost
+    damage
+    nbUse 
+    +get_maxLevel()
+    +get_cost(int level)
+    +get_upgrade_cost(int level)
+    +change_level()
+}
+
+Trap <|.. Fire
+Trap <|.. Rune
+Trap <|.. Spike
+Trap <|.. Hole
+
+Class Hero{
+    string id
+    tuple<int> start_pos
+    int maxHp
+    int hp
+    int damage
+    bool isDead
+    bool reachedTreasure
+    Strategy strategy
+    Effects effect
+    int effectTime
+    bool loaded
+    +take_damage(int amount)
+    +move(tuple<int> new_pos)
+    +convert_to_money()
+}
+
+Hero --> Strategy
+Hero --> Effects
+
+Class Monster{
+    string id
+    int tuple start_pos
+    int maxHp
+    int hp
+    int damage
+    bool isDead
+    int cost
+    +take_damage(int amount)
+    +move(tuple<int> new_pos)
+    +canMove(GameState game)
+}
+
+Class Dungeon{
+    int width
+    int height
+    int[][] grid
+    dict<trap> trap
+    dict<monster> monster
+    +is_valid_pos(int x, int y)
+    +placeElement(int x, int y, ElementType element_type, element)
+    +get_cell(int x, int y)
+    +get_total_construction_cost()
+    +get_trap(int x, int y)
+    +get_monster(int x, int y)
+    +to_dict()
+    +from_dict(cls, data)
+    +there_is_a_way(int x, int y, int cible_x, int cible_y, list already_visited)
+}
+
+Dungeon --> Monster
+Dungeon --> Trap
+
+Class GameState{
+    Dungeon dungeon
+    int budget
+    int score 
+    bool waveActive
+    int nbWave
+    Hero[] listHero
+    int itWave
+    dict<Trap> levels
+    +saveGame_to_file(filename)
+    +saveMap_to_file(filename)
+    +load_from_file(filename)
+    +buyElement(int x, int y, EntityType element_type, element)
+    +upgradeTrap(trap)
+    +isFinish()
+    +stratWave()
+    +updateWave()
+    +restartGame(int width, int height, int budget)
+    +loadStrategy(Strategy strategy)
+    +get_loaded_heros()
+    +is_hero_on(int x, int y)
+    +is_monster_on(int x, int y)
+}
+
+GameState --> Strategy
+GameState --> Dungeon
+GameState --> Hero
+GameState --> Trap
+
+@enduml

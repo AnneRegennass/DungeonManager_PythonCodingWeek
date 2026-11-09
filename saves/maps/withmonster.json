@@ -1,0 +1,49 @@
+{
+    "type": "map_layout",
+    "dungeon": {
+        "width": 10,
+        "height": 10,
+        "entry_pos": [
+            0,
+            0
+        ],
+        "treasure_pos": [
+            9,
+            9
+        ],
+        "walls": [
+            [
+                1,
+                0
+            ]
+        ],
+        "traps": {
+            "2,0": {
+                "class": "Spike",
+                "level": 1
+            },
+            "3,0": {
+                "class": "Hole",
+                "level": 1
+            },
+            "4,0": {
+                "class": "Rune",
+                "level": 1
+            },
+            "5,0": {
+                "class": "Fire",
+                "level": 1
+            },
+            "6,0": {
+                "class": "Spike",
+                "level": 2
+            }
+        },
+        "monsters": [
+            [
+                3,
+                1
+            ]
+        ]
+    }
+}

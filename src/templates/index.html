@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="FR-fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="{{ url_for('static',filename='styles/style.css') }}" rel="stylesheet" type="text/css" />
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Goofy Dungeon Manager</title>
+</head>
+<body>
+
+    <a href="/" style="text-decoration:none; position:absolute; left: 4em; top:3em;">
+        <button class="startButton">⬅️ Menu Principal</button>
+    </a>
+
+	<h1>Goofy Dungeon Manager</h1>
+
+	<div class="info-header">
+		<div class = "info-or">
+			<span class="label">OR</span>
+			<span class = "infocontent-or" id = "infocontent-or">0</span>
+		</div>
+		<div class = "info-score">
+			<span class = "label">Score</span>
+			<span class = "infocontent-score" id = "infocontent-score">0</span>
+		</div>
+	</div>
+
+
+    <div class="main-layout">
+
+        <aside class="side-panel edition">
+            <h4>🏰 Edition du donjon</h4>
+    		<div class = "edition-content">
+                <button onclick="setMode('WALL')" class="select_button" id="wall-display">Mur&nbsp;</button>
+            </div>
+            <div class = "edition-content">
+                <button onclick="setMode('PIC')" class="select_button" id="spike-display">Piques&nbsp;</button>
+                <button onclick="upgradeTrap('PIC')" class="upgrade_button" id="spike-upgrade-display">Upgrade</button>
+            </div>
+
+            <div class = "edition-content">
+                <button onclick="setMode('HOLE')" class="select_button" id="hole-display">Trou&nbsp;</button>
+                <button onclick="upgradeTrap('HOLE')" class="upgrade_button" id="hole-upgrade-display">Upgrade</button>
+            </div>
+            
+            <div class = "edition-content">
+                <button onclick="setMode('RUNE')" class ="select_button" id="rune-display">Rune&nbsp;</button>
+            </div>
+            <div class = "edition-content">
+                <button onclick="setMode('FIRE')" class ="select_button" id="fire-display">Feu&nbsp;</button>
+            </div>
+
+            <div class= "edition-content">
+                <button onclick="setMode('MONSTER')" class="select_button" id="monster-display">Monstre&nbsp;</button>
+            </div>
+
+    		<button onclick="setMode('EMPTY')" class="select_button">Effacer</button>
+
+        </aside>
+
+
+        <section class="board-container">
+            <div class="board" id="board"></div>
+        </section>
+
+
+        <aside class="side-panel controls">
+            <div class="partie">
+                <h4>🎲 Jeu</h4>
+                <div class="info-wave">
+                    <span id="infocontent-wave">1</span>
+                </div>
+        		<button onclick="startWave()" class = "startButton">Lancer la vague</button>
+                <button onclick="restartGame()" class="restartButton">Nouvelle partie</button>
+            </div>
+
+
+        	<div class="save-panel">
+                <h4>🗺️ Maps Enregistrées</h4>
+                <select id="map-selector" onchange="showMapInfo(this.value)">
+                    <option value="">-- Choisir Map --</option>
+                </select>
+                <div id="map-details" style="font-size: 0.6rem; color: #ffad29; margin: 5px 0;">
+                    Sélectionnez une map
+                </div>
+                <button onclick="loadSelected('map')">Charger Map</button>
+                <button onclick="saveElement('map')">Enregistrer Actuelle</button>
+
+                <hr>
+
+                <h4>💾 Parties Complètes</h4>
+                <select id="game-selector">
+                    <option value="">-- Choisir Partie --</option>
+                </select>
+                <button onclick="loadSelected('game')">Charger Partie</button>
+                <button onclick="saveElement('game')">Enregistrer Actuelle</button>
+            </div>
+
+        </aside>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+    <div id="game-over-screen" class="game-over-overlay">
+        <div class="scanlines"></div>
+        
+        <div class="game-over-content">
+            <h1 class="glitch-title" data-text="ÉCHEC CRITIQUE">ECHEC CRITIQUE</h1>
+            
+            <div class="defeat-message">
+                <p>Le trésor a été pillé ! La guilde est ruinée.</p>
+                <p>Vous êtes renvoyé...</p>
+            </div>
+    
+            <div class="report-card">
+                <div class="stat-row">
+                    <span>Vagues survécues :</span>
+                    <span id="final-waves" class="stat-val">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Héros occis :</span>
+                    <span id="final-kills" class="stat-val">0</span>
+                </div>
+                <div class="stat-row highlight">
+                    <span>SCORE FINAL :</span>
+                    <span id="final-score" class="stat-val">0</span>
+                </div>
+            </div>
+    
+            <div class="actions-row">
+                <button onclick="document.getElementById('game-over-screen').style.display='none';restartGame()" class="pixel-btn restart-btn">💀 Réessayer</button>
+                <a href="/" class="pixel-btn menu-btn">📜 Menu Principal</a>
+            </div>
+        </div>
+    </div>
+
+
+	<script>
+        // --- AUDIO ---
+        const taverneMusic = new Audio("{{ url_for('static', filename='audio/music.mp3') }}");
+        taverneMusic.loop = true;
+        taverneMusic.volume = 0.4;
+
+
+        function unlockAudio() {
+            taverneMusic.play().then(() => {
+                console.log("Ambiance de taverne activée !");
+                document.removeEventListener('click', unlockAudio);
+            }).catch(error => {
+                console.log("L'audio attend une interaction utilisateur...");
+            });
+        }
+        document.addEventListener('click', unlockAudio);
+
+	    let currentMode = ''; // Pas de sélection par défaut
+
+        function setMode(m) { currentMode = m; }
+
+        function getWallType(grid, x, y) {
+            const maxY = grid.length - 1;
+            const maxX = grid[0].length - 1;
+
+            if (y === 0 && x === 0) return 'WALL_CORNER_TOP_LEFT';
+            if (y === 0 && x === maxX) return 'WALL_CORNER_TOP_RIGHT';
+            if (y === maxY && x === 0) return 'WALL_CORNER_BOTTOM_LEFT';
+            if (y === maxY && x === maxX) return 'WALL_CORNER_BOTTOM_RIGHT';
+
+            if (y === 0) return 'WALL_SIDE_TOP';
+            if (y === maxY) return 'WALL_SIDE_BOTTOM';
+            if (x === 0) return 'WALL_SIDE_LEFT';
+            if (x === maxX) return 'WALL_SIDE_RIGHT';
+
+            return 'WALL'; // Mur classique au milieu (c'est censé être un sol en fait)
+        }
+
+        async function refresh() {
+            const res = await fetch('/api/state');
+            const data = await res.json();
+
+            document.getElementById('infocontent-or').innerText = data.budget;
+			document.getElementById('infocontent-score').innerText = data.score;
+            document.getElementById('infocontent-wave').innerText =
+                data.waveActive ? `Vague ${data.wave} (en cours)` : `Vague ${data.wave}`;
+
+            const gridDiv = document.getElementById('board');
+            gridDiv.innerHTML = '';
+
+            const width = data.grid[0].length;
+            gridDiv.style.gridTemplateColumns = `repeat(${width}, 40px)`;
+            
+            data.grid.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    const div = document.createElement('div');
+
+                    let wallClass = '';
+                    if (cell === 1) {
+                        const maxY = data.grid.length - 1;
+                        const maxX = data.grid[0].length - 1;
+                        if (x === 0 || x === maxX || y === 0 || y === maxY) {
+                            wallClass = getWallType(data.grid, x, y);
+                        } else {
+                            wallClass = 'PLAYER_WALL';
+                        }
+                    }
+                    div.className = 'cell ' + (
+                        wallClass ? wallClass :
+                        cell === 4 ? 'PIC' :
+                        cell === 2 ? 'ENTRY' :
+                        cell === 3 ? 'TREASURE' :
+                        cell === 10 ? 'SMALL_HOLE' :
+                        cell === 11 ? 'MEDIUM_HOLE' :
+                        cell === 12 ? 'BIG_HOLE' :
+                        cell === 13 ? 'RUNE' :
+                        cell === 14 ? 'FIRE' :
+                        cell === 20 ? 'MONSTER' :
+                        'GROUND');
+
+                    //affichage des héros et de leur barre de vie
+                    const heroHere = data.heroes.find(h => h.x + 1 === x && h.y + 1 === y);
+
+                    if (heroHere) {
+                        
+                        // calcul du pourcentage de vie
+                        const hpMax = heroHere.maxHp;
+                        const percentage = Math.max(0, (heroHere.hp / hpMax) * 100);
+                        
+                        if (heroHere.boss) {
+                            div.innerHTML = `
+                                <div class="hp-container">
+                                    <div class="hp-bar" style="width: ${percentage}%"></div>
+                                    <div class = "HERO_BOSS"></div>
+                                </div>
+                            `;
+                        } else {
+                            div.innerHTML = `
+                                <div class="hp-container">
+                                    <div class="hp-bar" style="width: ${percentage}%"></div>
+                                    <div class = "HERO"></div>
+                                </div>
+                            `;
+                        }
+
+                        div.onclick = (e) => {
+                            e.stopPropagation();
+                            const bar = div.querySelector('.hp-container');
+                            bar.classList.toggle('visible');
+                        };
+                    } else {
+                    const monsterHere = data.monsters ? data.monsters.find(m => m.x + 1 === x && m.y + 1 === y) : null;
+
+                    if (monsterHere) {
+                        const mHpMax = monsterHere.maxHp;
+                        const mPercentage = Math.max(0, (monsterHere.hp / mHpMax) * 100);
+
+                        div.innerHTML = `
+                            <div class="hp-container visible">
+                                <div class="hp-bar monster-hp" style="width: ${mPercentage}%; background-color: #e74c3c;"></div>
+                            </div>
+                        `;
+                    }
+                    
+                    div.onclick = () => place(x, y);
+                }
+
+                    gridDiv.appendChild(div);
+                });
+            });
+
+
+            const scoreElement = document.getElementById('infocontent-score');
+            scoreElement.innerText = data.score;
+
+            if (data.score < 0) {
+                scoreElement.classList.add('negative-score');
+            } else {
+                scoreElement.classList.remove('negative-score');
+            }
+
+            if (data.waveActive) {
+                setTimeout(updateWave, 300); // Boucle de simulation automatique
+            }
+
+
+            // AFFICHAGE DES COUTS 
+            try {
+                document.getElementById("wall-cost").remove()
+                document.getElementById("spike-cost").remove()
+                document.getElementById("hole-cost").remove()
+                document.getElementById("run-cost").remove()
+                document.getElementById("fire-cost").remove()
+                document.getElementById("monster-cost").remove()
+            } catch {}
+
+            let wallDisplay = document.getElementById("wall-display")
+            let pWall = document.createElement('p');
+            pWall.innerText = data.costs["WALL"] + "🪙";
+            pWall.id = "wall-cost";
+            pWall.style = "color:yellow;";
+
+            wallDisplay.appendChild(pWall);
+
+            let spikeDisplay = document.getElementById("spike-display")
+            let pSpike = document.createElement('p');
+            pSpike.innerText = data.costs["PIC"] + "🪙";
+            pSpike.id = "spike-cost";
+            pSpike.style = "color:yellow;";
+
+            spikeDisplay.appendChild(pSpike);
+
+            let holeDisplay = document.getElementById("hole-display")
+            let pHole = document.createElement('p');
+            pHole.innerText = data.costs["HOLE"] + "🪙";
+            pHole.id = "hole-cost";
+            pHole.style = "color:yellow;";
+
+            holeDisplay.appendChild(pHole);
+
+            let runeDispay = document.getElementById("rune-display")
+            let pRune = document.createElement('p');
+            pRune.innerText = data.costs["RUNE"] + "🪙";
+            pRune.id = "run-cost";
+            pRune.style = "color:yellow;";
+
+            runeDispay.appendChild(pRune);
+
+            let fireDisplay = document.getElementById("fire-display")
+            let pFire = document.createElement('p');
+            pFire.innerText = data.costs["FIRE"] + "🪙";
+            pFire.id = "fire-cost";
+            pFire.style = "color:yellow;";
+
+            fireDisplay.appendChild(pFire);
+
+            let monsterDisplay = document.getElementById("monster-display")
+            let pMonster = document.createElement('p');
+            pMonster.innerText = data.costs["MONSTER"] + "🪙";
+            pMonster.id = "monster-cost";
+            pMonster.style = "color:yellow;";
+
+            monsterDisplay.appendChild(pMonster);
+            
+        }
+
+        function setupSelectButtons() {
+            const buttons = document.querySelectorAll('.select_button');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('selected'));
+                button.classList.add('selected');
+                });
+            });
+            }
+
+
+        async function place(x, y) {
+            await fetch('/api/place', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({x, y, type: currentMode})
+            });
+            refresh();
+        }
+
+        async function startWave() {
+            await fetch('/api/wave/start', {method: 'POST'});
+            refresh();
+        }
+
+        async function updateWave() {
+            const res = await fetch('/api/wave/update', {method: 'POST'});
+            const data = await res.json();
+            
+            if (data.updateNews) {
+                let score = data.updateNews[3];
+                if (score < 0) {
+                    triggerGameOver(score, data.updateNews[4]-2, data.updateNews[1]);
+
+                } else {
+                    alert("Vague terminé ! Récapitulatif :\n\
+                        Morts : " + data.updateNews[1] + "\n\
+                        Trésors atteints : " + data.updateNews[2] + "\n\
+                        Score total : " + data.updateNews[3] + "\n\
+                        Prochaine vague : " + data.updateNews[4] + "\n"
+                    );
+                }
+                
+            }
+            refresh();
+        }
+
+        async function upgradeTrap(trap) {
+            const res = await fetch('/api/state');
+            const data = await res.json();
+
+            let txt = "";
+            if (trap == "PIC") {
+                txt = "Pique";
+            } else if (trap == "HOLE") {
+                txt = "Trou"
+            }
+
+            if (confirm("Veux-tu améliorer le piège " + txt + " ?\ncoût : " + data.upgrade_costs[trap])) {
+                await fetch('/api/upgrade', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({trap})
+                });
+                alert("Piège amélioré avec succès");
+                refresh()
+            } else {
+                alert("Achat annulé");
+                refresh();
+            }
+        }
+
+
+        // Fonction pour sauvegarder (Map ou Partie complète)
+        async function saveElement(type) {
+            const fileName = prompt("Nom de la sauvegarde :");
+            if (!fileName) return;
+
+            // Détermine l'URL selon si on veut juste la map ou l'état complet
+            const endpoint = (type === 'map') ? '/api/save_map' : '/api/save_game';
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: fileName })
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert("Sauvegarde réussie !");
+                updateSaveList(); // Rafraîchir la liste
+            }
+        }
+
+        // Fonction pour récupérer la liste des fichiers disponibles
+        async function updateSaveList() {
+            const response = await fetch('/api/saves');
+            const data = await response.json();
+            const mapSelect = document.getElementById('map-selector');
+            const gameSelect = document.getElementById('game-selector');
+
+            mapSelect.innerHTML = '<option value="">-- Choisir Map --</option>';
+            data.maps.forEach(f => mapSelect.innerHTML += `<option value="${f}">${f}</option>`);
+
+            gameSelect.innerHTML = '<option value="">-- Choisir Partie --</option>';
+            data.games.forEach(f => gameSelect.innerHTML += `<option value="${f}">${f}</option>`);
+    }
+        
+
+        async function showMapInfo(filename) {
+            if (!filename) return;
+            const res = await fetch(`/api/map_info/${filename}`);
+            const info = await res.json();
+    
+            document.getElementById('map-details').innerHTML = 
+                `Taille: ${info.width}x${info.height} | Coût: ${info.cost} Or`;
+        }
+
+
+        async function loadSelected(type) {
+            const selector = (type === 'map') ? 'map-selector' : 'game-selector';
+            const filename = document.getElementById(selector).value;
+            if (!filename) {
+                alert("Veuillez choisir un fichier");
+                return;
+            }
+            try{
+                const res = await fetch('/api/load', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ filename: filename, type: type })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    
+                    alert(data.message);
+                    if (typeof refresh === "function") refresh(); // Met à jour la grille et le budget sur l'écran
+                } else {
+                    // Affiche le message d'erreur (Dimensions ou Budget)
+                    alert(" Échec du chargement\n\n" + data.message);
+                }
+            } catch (error) {
+                alert("Impossible de contacter le serveur.");
+            }
+        }
+        
+
+        async function restartGame() {
+            if (confirm("Redémarrer la partie ? Tout sera perdu.")) {
+                const res = await fetch('/api/restart', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === "success") {
+                    refresh(); // rafraîchir l'affichage du plateau
+                } else {
+                    alert("Erreur lors du redémarrage");
+                }
+            }
+        }
+
+        function triggerGameOver(score, waves, kills) {
+            // 1. Remplir les données
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-waves').innerText = waves || "1"; // Exemple
+            document.getElementById('final-kills').innerText = kills || "0";
+
+            // 2. Afficher l'écran avec un display flex
+            const screen = document.getElementById('game-over-screen');
+            screen.style.display = 'flex';
+        }
+
+
+
+        // Appeler au chargement de la page
+        window.onload = () => {
+            updateSaveList();
+            setupSelectButtons();
+            refresh();
+        };
+
+    </script>
+
+</body>
+</html>

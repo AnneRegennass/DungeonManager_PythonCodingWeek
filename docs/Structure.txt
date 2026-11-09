@@ -1,0 +1,43 @@
+structure du projet :
+
+- définit l'état du jeu :game_state
+	- donjon
+	- liste de héro
+	- budget
+	- score
+	- vague en cours
+	- nombre de vagues
+
+	peut se sauvegarder
+
+- donjon:
+	représente la grille des blocks
+	contient les murs, les piège, les monstres, le départ, l'arrivé, ...
+	-> sous forme de liste de liste
+	
+	peut ajouter un élément à une case
+	pour dire si une coordonée de case est valide
+	-> entrée x, y
+	-> renvoie si x, y est une case de la grille
+	
+	peut renvoyer un élément à une certaine coordonée
+
+	peut se sauvegarder en json
+
+- entité :
+	représenté par une énumération (IntEnum)
+	- entrée
+	- sortie
+	- trap
+	- wall
+	- ground
+
+
+- heros:
+	position x, y
+	hp
+	strategy
+	isDead
+	reachedTreasure
+
+- 

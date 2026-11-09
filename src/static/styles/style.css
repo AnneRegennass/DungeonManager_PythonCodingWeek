@@ -1,0 +1,729 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --bg-color: #1a1016; /* Fond très sombre */
+    --panel-wood: #3e2731;
+    --light-wood: #733e39;
+    --stone-dark: #4a4a4a;
+    --stone-light: #949494;
+    --gold: #ffad29;
+    --danger: #e43b44;
+    --wall-brown: #4e323e;
+}
+
+body {
+    background-color: var(--bg-color);
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        repeating-linear-gradient(45deg, #2a1a24 0, #2a1a24 2px, transparent 0, transparent 50%);
+    background-size: cover, 10px 10px;
+    color: #f4f4f4;
+    font-family: 'Press Start 2P', cursive; /* Police Pixel Art obligatoire */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    image-rendering: pixelated; /* Crucial pour le rendu pixel art */
+}
+
+h1 {
+    font-size: 1.5rem;
+    color: var(--gold);
+    text-shadow: 4px 4px 0px #000;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+/* --- LE CONTENEUR STYLE "PANNEAU D'AUBERGE" --- */
+.game-container, .info-header, .edition, .partie, .save-panel {
+    background: var(--panel-wood);
+    border: 4px solid #000;
+    outline: 4px solid var(--light-wood);
+    box-shadow: 0 10px 0 rgba(0,0,0,0.4);
+    padding: 20px;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+/* --- STATISTIQUES --- */
+.info-header {
+    display: flex;
+    gap: 40px;
+    border-radius: 0;
+}
+
+.label {
+    display: block;
+    font-size: 0.6rem;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.infocontent-or { color: var(--gold); }
+.infocontent-score { color: #639bff; }
+
+/* --- LE PLATEAU (DONJON SOUS L'AUBERGE) --- */
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    gap: 0; /* On colle les cases pour l'effet carrelage */
+    border: 8px solid #222;
+    padding: 0;
+    background: #111;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.cell:hover {
+    background: rgba(255,255,255,0.1);
+    outline: 2px solid white;
+    outline-offset: -2px;
+    cursor: url('https://cur.cursors-4u.net/games/gam-4/gam373.cur'), auto;
+}
+
+/* --- ENTITÉS PIXEL ART --- */
+.cell.WALL_CORNER_TOP_LEFT {
+    background-image: url('/static/img/wall_corner_top_left.png');
+    background-size: cover;
+}
+
+.cell.WALL_CORNER_TOP_RIGHT {
+    background-image: url('/static/img/wall_corner_top_right.png');
+    background-size: cover;
+}
+
+.cell.WALL_CORNER_BOTTOM_LEFT {
+    background-image: url('/static/img/wall_corner_bottom_left.png');
+    background-size: cover;
+}
+
+.cell.WALL_CORNER_BOTTOM_RIGHT {
+    background-image: url('/static/img/wall_corner_bottom_right.png');
+    background-size: cover;
+}
+
+.cell.WALL_SIDE_TOP {
+    background-image: url('/static/img/wall_side_top.png');
+    background-size: cover;
+}
+
+.cell.WALL_SIDE_BOTTOM {
+    background-image: url('/static/img/wall_side_bottom.png');
+    background-size: cover;
+}
+
+.cell.WALL_SIDE_LEFT {
+    background-image: url('/static/img/wall_side_left.png');
+    background-size: cover;
+}
+
+.cell.WALL_SIDE_RIGHT {
+    background-image: url('/static/img/wall_side_right.png');
+    background-size: cover;
+}
+
+.cell.GROUND {
+    background-image: url('/static/img/sol_base.png');
+    background-size: cover;
+}
+
+.cell.PLAYER_WALL {
+    background-image: url('/static/img/mur_a_poser.png');
+    background-size: cover;
+}
+
+
+.PIC {
+    background-image: url('/static/img/spike.png');
+    background-size: cover;
+}
+
+.ENTRY {
+    background-image: url('/static/img/entry.png');
+    background-size: cover;
+}
+
+.TREASURE {
+    background-image: url('/static/img/treasure.gif');
+    background-size: cover;
+}
+
+.HERO {
+    width: 100%;
+    height:40px;
+    background-image: url('/static/img/hero.png');
+    background-size: cover;
+}
+
+.HERO_BOSS {
+    width: 100%;
+    height:40px;
+    background-image: url('/static/img/hero_boss.png');
+    background-size: cover;
+}
+
+
+/* La cellule doit être en relative pour que la barre de vie flotte dessus */
+.cell {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* La barre de vie (cachée par défaut) */
+.hp-container {
+    /*display: none; /* Caché */
+    position: absolute;
+    top: -10px;
+    left: 2px;
+    width: 36px;
+    height: 6px;
+    background: #333;
+    border: 1px solid white;
+    z-index: 100;
+}
+
+/* Quand on ajoute la classe .visible via JS */
+.hp-container.visible {
+    display: block;
+}
+
+.hp-bar {
+    height: 100%;
+    background: #2ecc71;
+}
+
+.hp-bar.monster-hp {
+    background: #e74c3c; /* Rouge pour les monstres */
+}
+
+
+.RUNE {
+    background-image: url('/static/img/rune.gif');
+    background-size: cover;
+}
+
+.FIRE{
+    background-image: url('/static/img/fire.png');
+    background-size: cover;
+}
+
+/* --- TROUS (OMBRES PROFONDES) --- */
+.SMALL_HOLE {
+    background-image: url('/static/img/small_hole.png');
+    background-size: cover;
+}
+.MEDIUM_HOLE { 
+    background-image: url('/static/img/medium_hole.png');
+    background-size: cover;
+}
+.BIG_HOLE { 
+    background-image: url('/static/img/big_hole.png');
+    background-size: cover;
+}
+
+.MONSTER{
+    background-image: url('/static/img/monster.png');
+    background-size: cover;
+}
+
+/* --- BOUTONS STYLE "PIXEL UI" --- */
+button {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    padding: 12px;
+    background: var(--light-wood);
+    color: white;
+    border: 4px solid #000;
+    box-shadow: inset -4px -4px 0px #3e2731;
+    cursor: pointer;
+    margin: 5px;
+    transition: transform 0.1s;
+}
+.edition-content {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+
+.edition-content button {
+    margin: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+
+.select_button {
+    flex: 2;
+}
+
+
+.upgrade_button {
+    flex: 1;
+    font-size: 0.5rem;
+    background-color: #5c6bc0; 
+    box-shadow: inset -4px -4px 0px #3949ab;
+    border-color: #1a237e;
+    color: #fff;
+}
+
+.upgrade_button:hover {
+    background-color: #3949ab;
+    box-shadow: inset -4px -4px 0px #1a237e;
+    border-color: #0a136e;
+}
+
+button:hover {
+    background: #b45252;
+}
+
+button:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.select_button.selected {
+    border-color: #b07a00;
+    box-shadow: inset -4px -4px 0px #7a5a00;
+    transform: scale(1.1);
+    background-color: #a67c52; /* brun clair chaleureux */
+    box-shadow: inset -4px -4px 0px #6b4f34; /* ombre plus douce */
+    color: #fff; /* texte clair pour le contraste */
+}
+
+.startButton { background: var(--danger); box-shadow: inset -4px -4px 0px #7a1c22; }
+.restartButton { background: #4F63D4; box-shadow: inset -4px -4px 0px #1E297B; }
+
+/* --- ANIMATIONS --- */
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-5px); }
+}
+
+.negative-score {
+    color: var(--danger) !important;
+    animation: flash 0.5s infinite step-end;
+}
+
+@keyframes flash {
+    50% { opacity: 0; }
+}
+
+/* Alignement horizontal des éléments */
+.main-layout {
+    display: flex;
+    flex-direction: row; /* Aligne les éléments côte à côte */
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px; /* Espace entre le donjon et les menus */
+    margin-top: 20px;
+    width: 95%;
+}
+
+/* On force les panneaux latéraux à avoir une largeur fixe */
+.side-panel {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: 1fr; /* Boutons empilés */
+    gap: 10px;
+}
+
+/* On s'assure que le board ne bouge pas */
+.board-container {
+    padding: 10px;
+    background: #000;
+    border: 6px double var(--light-wood); /* Double bordure pour le cachet médiéval */
+}
+
+/* Adaptation mobile : on empile tout si l'écran est petit */
+@media (max-width: 900px) {
+    .main-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+    .side-panel {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+
+/* --- GAME OVER --- */
+/* --- GAME OVER OVERLAY --- */
+.game-over-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(10, 5, 10, 0.95); /* Fond presque noir mais teinté rouge/marron */
+    z-index: 1000;
+    display: none; /* Caché par défaut */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+    backdrop-filter: blur(5px);
+}
+
+/* Effet CRT (Lignes de balayage TV) */
+.scanlines {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.2) 50%,
+        rgba(0,0,0,0.2)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1001;
+}
+
+/* Titre Glitché */
+.glitch-title {
+    font-size: 4rem;
+    color: #ff3333;
+    position: relative;
+    text-shadow: 4px 4px 0px #550000;
+    animation: shake 0.5s infinite;
+}
+
+/* Création du dédoublement pour l'effet glitch */
+.glitch-title::before, .glitch-title::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a050a; /* Doit matcher le fond */
+}
+
+.glitch-title::before {
+    left: 2px;
+    text-shadow: -2px 0 #00ffff;
+    clip: rect(24px, 550px, 90px, 0);
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+.glitch-title::after {
+    left: -2px;
+    text-shadow: -2px 0 #ff00ff;
+    clip: rect(85px, 550px, 140px, 0);
+    animation: glitch-anim 2.5s infinite linear alternate-reverse;
+}
+
+.defeat-message {
+    color: #aaa;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* --- LE RAPPORT (Cadre) --- */
+.report-card {
+    background: #1a1a1a;
+    border: 4px double #555;
+    padding: 30px;
+    width: 300px;
+    margin-bottom: 40px;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+    transform: rotate(-2deg); /* Un peu de travers pour le style */
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #333;
+    padding-bottom: 5px;
+}
+
+.stat-row.highlight {
+    border-bottom: none;
+    margin-top: 20px;
+    color: #ffad29; /* Or */
+    font-size: 1.2rem;
+}
+
+/* --- BOUTONS ACTIONS --- */
+.actions-row {
+    display: flex;
+    gap: 20px;
+    z-index: 1002; /* Au dessus des scanlines */
+}
+
+.pixel-btn {
+    font-family: 'Press Start 2P', cursive;
+    padding: 15px 25px;
+    border: 4px solid #000;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    transition: transform 0.1s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.restart-btn {
+    background: #e43b44;
+    color: white;
+    box-shadow: inset -4px -4px 0 #8e0000;
+    animation: pulse-red 2s infinite;
+}
+
+.menu-btn {
+    background: #4a4a4a;
+    color: white;
+    box-shadow: inset -4px -4px 0 #222;
+}
+
+.pixel-btn:hover { transform: scale(1.05); }
+.pixel-btn:active { transform: scale(0.95); }
+
+/* --- KEYFRAMES ANIMATIONS --- */
+@keyframes glitch-anim {
+    0% { clip: rect(10px, 9999px, 31px, 0); }
+    20% { clip: rect(60px, 9999px, 83px, 0); }
+    40% { clip: rect(12px, 9999px, 95px, 0); }
+    60% { clip: rect(80px, 9999px, 30px, 0); }
+    80% { clip: rect(45px, 9999px, 60px, 0); }
+    100% { clip: rect(130px, 9999px, 10px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(65px, 9999px, 100px, 0); }
+    20% { clip: rect(35px, 9999px, 15px, 0); }
+    40% { clip: rect(90px, 9999px, 5px, 0); }
+    60% { clip: rect(10px, 9999px, 80px, 0); }
+    80% { clip: rect(110px, 9999px, 45px, 0); }
+    100% { clip: rect(5px, 9999px, 30px, 0); }
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(228, 59, 68, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(228, 59, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(228, 59, 68, 0); }
+}
+
+
+
+/* --- WECLOME PAGE --- */
+
+.welcome-body {
+    justify-content: center;
+    height: 100vh;
+    padding: 0;
+}
+
+.parchment-container {
+    background: #e3cdb0; /* Couleur vieux papier */
+    color: #3e2731; /* Encre sombre */
+    width: 500px;
+    padding: 40px;
+    border: 10px solid #3e2731;
+    box-shadow: 
+        inset 0 0 40px rgba(0,0,0,0.2), /* Ombre intérieure */
+        0 20px 50px rgba(0,0,0,0.7); /* Ombre portée */
+    text-align: center;
+    position: relative;
+    font-family: 'Press Start 2P', cursive;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZTNjZGIwIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4wNSkiLz4KPC9zdmc+');
+}
+
+/* Effet "clou" aux coins */
+.parchment-container::before, .parchment-container::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    width: 15px;
+    height: 15px;
+    background: #222;
+    border-radius: 50%;
+    box-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+}
+.parchment-container::before { left: 10px; }
+.parchment-container::after { right: 10px; }
+
+.intro-text {
+    font-family: 'Segoe UI', sans-serif; /* Plus lisible pour le texte */
+    font-weight: bold;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+input[type="number"] {
+    padding: 10px;
+    font-family: 'Press Start 2P';
+    border: 3px solid #3e2731;
+    background: #fff;
+    width: 80px;
+    text-align: center;
+}
+
+.presets {
+    margin: 20px 0;
+    padding: 15px;
+    border: 2px dashed #3e2731;
+    background: rgba(255,255,255,0.3);
+}
+
+.presets p {
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+}
+
+.sign-button {
+    background: #8b0000; /* Rouge cire à cacheter */
+    color: #fff;
+    font-size: 1rem;
+    padding: 15px;
+    border: 4px solid #3e2731;
+    margin-top: 10px;
+    box-shadow: 0 5px 0 #3e2731;
+}
+
+.sign-button:hover {
+    background: #a50000;
+    transform: translateY(-2px);
+}
+
+.fine-print {
+    font-size: 0.8em;
+    text-shadow: 2px 2px 0px #8e6b3b;
+}
+
+.fine-print > a:hover {
+    color: #805d2e;
+    text-shadow: 2px 2px 0px #42311a;
+}
+
+.fine-print > a {
+    color: #c6985b;
+}
+
+
+/* --- RULES --- */
+
+/* --- ADAPTATION DES RÈGLES AU STYLE ACCUEIL --- */
+
+/* On élargit un peu le parchemin pour les règles */
+.rules-scroll {
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto; /* Permet de scroller à l'intérieur du parchemin si c'est long */
+    padding: 50px;
+    scrollbar-width: thin;
+    scrollbar-color: #3e2731 transparent;
+}
+
+.subtitle {
+    font-size: 0.7rem;
+    color: #8b0000;
+    margin-top: -20px;
+    margin-bottom: 30px;
+    font-family: 'Press Start 2P', cursive;
+    opacity: 0.8;
+}
+
+.rules-content {
+    text-align: left; /* Plus facile à lire */
+    font-family: 'Segoe UI', sans-serif, cursive;
+    color: #2b1d12;
+}
+
+.rule-block {
+    margin-bottom: 25px;
+    border-bottom: 1px dashed rgba(62, 39, 49, 0.3);
+    padding-bottom: 15px;
+}
+
+.rule-block h3 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+    color: #3e2731;
+    margin-bottom: 10px;
+}
+
+.rule-block p {
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+.rule-block strong {
+    color: #8b0000;
+}
+
+/* Bouton retour personnalisé */
+.back-btn {
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 0.7rem;
+    padding: 10px 20px;
+}
+
+/* Le petit sceau de cire en bas */
+.wax-seal-small {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: #8b0000;
+    border-radius: 50%;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    border: 2px solid #5d0000;
+    opacity: 0.9;
+}
+
+/* Custom scrollbar pour rester dans le thème */
+.rules-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+.rules-scroll::-webkit-scrollbar-thumb {
+    background: #3e2731;
+    border-radius: 10px;
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Codex du Manager - Règles</title>
+    <link href="{{ url_for('static',filename='styles/style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=MedievalSharp&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=MedievalSharp&family=Press+Start+2P&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body class="welcome-body"> <div class="parchment-container rules-scroll">
+        <div class="parchment-header">
+            <h1>📜 Manuel de l'Architecte</h1>
+            <p class="subtitle">Propriété exclusive de la Guilde des Maîtres de Donjon</p>
+        </div>
+        
+        <div class="rules-content">
+            <section class="rule-block">
+                <h3>🧱 Construction</h3>
+                <p>Utilisez votre <strong>Or</strong> pour ériger des murs et creuser des fosses.<br/></p>
+            </section>
+
+            <section class="rule-block">
+                <h3>⚔️ Défense</h3>
+                <p>Les <strong>Pièges</strong> ralentissent et blessent les héros. Un héros qui meurt dans votre donjon augmente votre <strong>Score de Renommée</strong> et votre <strong>Or</strong>.<br/>Vous pouvez améliorer vos pièges afin d'augmenter les dégats, le nombre d'utilisation, ou la durée des effets.</p>
+            </section>
+
+            <section class="rule-block">
+                <h3>🕵️ Les Intrus</h3>
+                <p>Il existe trois types de héros : les <strong>Téméraires</strong> (foncent au plus court), les <strong>Prudents</strong> qui évitents les pièges et tentent de prendre le meilleur chemin (pour eux), et les <strong>Idiots</strong>. Ils foncent à travers le chemin le plus court afin de sortir le plus vite possible.<br/>Quand un héro meurt, il vous récupérez une récompense proportionnelle à sa puissance.</p>
+            </section>
+
+            <section class="rule-block">
+                <h3>🏆 Victoire & Défaite</h3>
+                <p>Si un héros atteint votre <strong>Trésor</strong>, votre renommée chute. Si votre score tombe trop bas, le contrat est rompu : <strong>Game Over</strong>.</p>
+            </section>
+        </div>
+
+        <div class="parchment-footer">
+            <a href="/" class="sign-button back-btn">⬅ Retourner au Menu</a>
+        </div>
+        
+        <div class="wax-seal-small"></div>
+    </div>
+
+</body>
+</html>

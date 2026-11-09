@@ -1,0 +1,39 @@
+{
+    "budget": 70.0,
+    "score": -1400,
+    "dungeon": {
+        "width": 10,
+        "height": 10,
+        "entry_pos": [
+            0,
+            0
+        ],
+        "treasure_pos": [
+            9,
+            9
+        ],
+        "walls": [
+            [
+                2,
+                0
+            ]
+        ],
+        "traps": {
+            "1,1": {
+                "class": "Hole",
+                "level": 1
+            },
+            "3,0": {
+                "class": "Spike",
+                "level": 1
+            }
+        },
+        "monsters": [
+            [
+                4,
+                0
+            ]
+        ]
+    },
+    "nbWave": 3
+}

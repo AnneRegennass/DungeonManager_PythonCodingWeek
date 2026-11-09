@@ -1,0 +1,32 @@
+@startuml Diagramme de séquence du lancement et du déroulé d'une vague sur le web.
+
+actor Joueur
+participant UI
+participant mainWeb
+participant GameState
+participant Hero
+participant Effects
+participant Strategy
+participant Monster
+
+Joueur -> UI : Clique sur le bouton "Nouvelle vague"
+UI -> mainWeb : start_wave()
+mainWeb -> GameState : start_wave()
+GameState -> Hero : Création d'une liste de héro
+Hero --> GameState : Ok
+loop Tant que la vague n'est pas finie
+    GameState -> GameState : updateWave
+    GameState -> Hero : mise à jour de l'état des héros
+    Hero -> Effects : Pour déterminer les effets à appliquer
+    Effects --> Hero : Ok
+    Hero -> Strategy : Pour savoir de quelle manière il se déplace
+    Strategy --> Hero : Ok
+    Hero --> GameState : Ok
+    GameState -> Monster : mise à jour de l'état des monstres
+    Monster --> GameState : Ok
+end
+GameState --> mainWeb
+mainWeb --> UI
+UI --> Joueur
+
+@enduml
